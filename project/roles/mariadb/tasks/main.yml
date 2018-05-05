@@ -1,0 +1,37 @@
+---
+- name: Install MariaDB server package
+  become: yes
+  apt: name=mariadb-server state=present
+
+- name: Start Mysql Service
+  become: yes
+  service: name=mysql state=started enabled=true
+
+- name: Install python Mysql package #required for mysql_db tasks
+  become: yes
+  apt: name=python-mysqldb state=present
+
+- name: Copy the root credentials as .my.cnf file
+  template: src=root.cnf.j2 dest=~/.my.cnf mode=0600
+
+- name: Create a new database
+  mysql_db: name={{ db_name }} state=present collation=utf8_general_ci
+
+- name: Create a database user
+  mysql_user: name={{ db_user }} password={{ db_password }} priv=*.*:ALL host=% state=present
+
+- name: Change MySQL config
+  become: yes 
+  lineinfile:
+    dest: /etc/mysql/my.cnf
+    regexp: '(?i)^(bind-address.*)'
+    line: '# \1'
+    backrefs: yes
+    state: present
+  notify: "restart mysql"
+
+- name: Copy sample data
+  copy: src=dump.sql dest=/tmp/dump.sql
+
+- name: Insert sample data
+  shell: cat /tmp/dump.sql | mysql -u {{ db_user }} -p{{ db_password }} {{ db_name }}

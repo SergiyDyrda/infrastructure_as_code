@@ -1,0 +1,26 @@
+---
+- name: Installing NGINX
+  become: yes
+  apt:
+    name: 'nginx'
+    state: 'present'
+
+- name: Create default nginx directories
+  become: yes
+  file:
+    path: '{{ item }}'
+    state: 'directory'
+  with_items:
+    - '/usr/share/nginx/html'
+    - '/etc/nginx/sites-available'
+    - '/etc/nginx/sites-enabled'
+    - '/etc/nginx/conf.d'
+
+
+- name: config | Configuring NGNIX Load Balancer
+  template:
+    src: "etc/nginx/nginx.conf.j2"
+    dest: "/etc/nginx/nginx.conf"
+  become: yes
+  notify: "restart nginx"
+

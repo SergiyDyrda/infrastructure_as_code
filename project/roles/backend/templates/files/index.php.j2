@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<?php
+
+$connection = new PDO('mysql:host={{ db_server }};dbname={{ db_name }}', '{{ db_user }}', '{{ db_password }}');
+$statement  = $connection->query('SELECT message FROM my_table');
+
+echo "<h2>Hy! My ip is: " . $_SERVER['SERVER_ADDR'] . "</h2>";
+echo "<h3>" . $statement->fetchColumn() . "</h3>";
+?>
+
+</body>
+</html>

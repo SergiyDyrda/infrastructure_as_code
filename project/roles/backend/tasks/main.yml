@@ -1,0 +1,35 @@
+---
+- name: install apache2
+  become: yes
+  apt:
+    name: 'apache2'
+    state: 'latest'
+
+- name: install PHP module for Apache
+  become: yes
+  apt:
+    name: 'libapache2-mod-php5'
+    state: 'present'
+ 
+- name: Install MySQL extension for PHP
+  become: yes
+  apt:
+    name: 'php5-mysql'
+    state: 'present'
+
+- name: Remove Default index page from Apache
+  file: path=/var/www/html/index.html state=absent
+  become: yes
+
+- name: Insert PHP script
+  template:
+    src: "files/index.php.j2"
+    dest: "/var/www/index.php"
+  become: yes
+
+- name: Configuring Apache2 ports
+  template:
+    src: "etc/apache2/ports.conf.j2"
+    dest: "/etc/apache2/ports.conf"
+  become: yes
+  notify: "restart apache2"

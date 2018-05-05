@@ -1,0 +1,31 @@
+---
+
+- name: config nginx
+  hosts: nginx-serv
+  vars:
+    frontend_listen_port: 80
+    backend_listen_port: 8080
+    servers: "{{ groups['backend'] }}"
+  roles: 
+    - nginx
+
+
+- name: config backend
+  hosts: backend
+  vars:
+    backend_listen_port: 8080
+    db_server: "{{ groups['db-serv'][0] }}"
+    db_name: 'demo'
+    db_user: 'user'
+    db_password: 'password'
+  roles:
+    - backend
+
+- name: config database
+  hosts: db-serv
+  vars:
+    db_name: 'demo'
+    db_user: 'user'
+    db_password: 'password'
+  roles:
+    - mariadb
